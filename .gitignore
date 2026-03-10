@@ -1,0 +1,15 @@
+
+backend/.env
+backend/node_modules/
+
+
+front/.env
+front/node_modules/
+
+backend/uploads/
+
+
+npm-debug.log
+yarn-error.log
+
+.DS_Storeg

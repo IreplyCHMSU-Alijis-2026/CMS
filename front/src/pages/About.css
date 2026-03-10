@@ -1,0 +1,146 @@
+/* ===================================
+   About Page Styles
+   =================================== */
+
+.about__hero {
+    padding-top: 140px;
+    text-align: center;
+}
+
+.about__label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-accent-light);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: var(--spacing-md);
+}
+
+.about__title {
+    font-size: clamp(2rem, 5vw, var(--font-size-4xl));
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: var(--spacing-lg);
+}
+
+.about__desc {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* ---------- Tech Stack Cards ---------- */
+.stack__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.stack-card {
+    display: flex;
+    align-items: stretch;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.stack-card:hover {
+    transform: translateY(-4px);
+    background: var(--color-bg-card-hover);
+    box-shadow: var(--shadow-lg);
+}
+
+.stack-card__indicator {
+    width: 4px;
+    flex-shrink: 0;
+}
+
+.stack-card__content {
+    padding: var(--spacing-xl);
+}
+
+.stack-card__header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+.stack-card__name {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+}
+
+.stack-card__version {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    background: var(--color-bg-card);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+}
+
+.stack-card__desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+/* ---------- Project Structure ---------- */
+.structure__title {
+    font-size: clamp(1.5rem, 3vw, var(--font-size-3xl));
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.structure__layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.structure__block {
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+}
+
+.structure__block-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.structure__block-header h3 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+}
+
+.structure__block-icon {
+    font-size: 1.5rem;
+}
+
+.structure__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.structure__list li {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.structure__list li:last-child {
+    border-bottom: none;
+}
+
+.structure__list code {
+    color: var(--color-accent-light);
+    font-size: var(--font-size-sm);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
