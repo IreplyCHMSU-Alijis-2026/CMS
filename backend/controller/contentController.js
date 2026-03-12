@@ -50,8 +50,64 @@ res.json("Deleted")
 
 }
 
+const updateContent = async (req,res)=>{
+
+try{
+
+const {title,type,startTime,endTime} = req.body
+
+let updateData = {
+title,
+type,
+startTime,
+endTime
+}
+
+console.log(req.file)
+
+if(req.file){
+
+const result = await cloudinary.uploader.upload(req.file.path,{
+resource_type:type==="video"?"video":"image"
+})
+
+fs.unlinkSync(req.file.path)
+
+updateData.fileUrl = result.secure_url
+
+}
+
+const updated = await Content.findByIdAndUpdate(
+req.params.id,
+updateData,
+{new:true}
+)
+
+res.json(updated)
+
+}catch(error){
+console.log(error)
+res.status(500).json("Update failed")
+
+}
+
+}
+
+const getPublicContent = async (req, res) => {
+  const now = new Date();
+
+  const data = await Content.find({
+    startTime: { $lte: now },
+    endTime: { $gte: now || new Date("9999-12-31") } 
+  }).sort({ createdAt: 1 });
+
+  res.json(data);
+};
+
 module.exports = {
 uploadContent,
 getAllContent,
-deleteContent
+deleteContent,
+updateContent,
+getPublicContent
 }

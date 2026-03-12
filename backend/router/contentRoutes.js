@@ -1,20 +1,63 @@
-const router = require("express").Router()
-const multer = require("multer")
+// const router = require("express").Router()
+// const multer = require("multer")
 
-const auth = require("../middleware/auth")
+// const auth = require("../middleware/auth")
 
+// const {
+// uploadContent,
+// getAllContent,
+// deleteContent,
+// updateContent
+// } = require("../controller/contentController")
+
+// const upload = multer({dest:"uploads/"})
+
+
+// router.post("/upload",auth,upload.single("file"),uploadContent)
+
+// router.get("/content",auth,getAllContent)
+
+// router.delete("/content/:id",auth,deleteContent)
+
+// router.put("/content/:id", auth, upload.single("file"), updateContent)
+
+
+
+// module.exports = router
+
+
+const router = require("express").Router();
+const multer = require("multer");
+const auth = require("../middleware/auth");
+
+const cors = require("cors");
 const {
-uploadContent,
-getAllContent,
-deleteContent
-} = require("../controller/contentController")
+  uploadContent,
+  getAllContent,
+  deleteContent,
+  updateContent,
+  getPublicContent,
+} = require("../controller/contentController");
 
-const upload = multer({dest:"uploads/"})
 
-router.post("/upload",auth,upload.single("file"),uploadContent)
 
-router.get("/content",auth,getAllContent)
+const corsWithCookies = cors({
+  origin: "http://localhost:5173", 
+  credentials: true,
+});
 
-router.delete("/content/:id",auth,deleteContent)
 
-module.exports = router
+const corsPublic = cors(); 
+
+const upload = multer({ dest: "uploads/" });
+
+router.post("/upload", corsWithCookies, auth, upload.single("file"), uploadContent);
+router.get("/content", corsWithCookies, auth, getAllContent);
+router.delete("/content/:id", corsWithCookies, auth, deleteContent);
+router.put("/content/:id",corsWithCookies, auth, upload.single("file"), updateContent)
+
+
+
+router.get("/public/content", corsPublic, getPublicContent);
+
+module.exports = router;

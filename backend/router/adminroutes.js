@@ -1,10 +1,14 @@
-const express = require('express');
-const {register,login,refreshToken} = require("../controller/loginRegisterController");
-const router =express.Router();
+const router = require("express").Router();
+const { login, refreshToken,register } = require("../controller/loginRegisterController");
+const cors = require("cors");
 
 
-router.post('/register',register);
-router.post('/login',login);
-router.get('/refresh',refreshToken)
+const corsWithCookies = cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+});
+router.post("register",corsWithCookies,register)
+router.post("/login", corsWithCookies, login);
+router.get("/refresh", corsWithCookies, refreshToken);
 
 module.exports = router;
