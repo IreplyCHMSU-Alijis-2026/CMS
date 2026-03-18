@@ -244,12 +244,10 @@
 }
 
 .badge--image {
-    background: rgba(0, 184, 148, 0.15);
     color: #00b894;
 }
 
 .badge--video {
-    background: rgba(108, 92, 231, 0.18);
     color: #a29bfe;
 }
 
