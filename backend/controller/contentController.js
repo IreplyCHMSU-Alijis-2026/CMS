@@ -1,3 +1,4 @@
+const { json } = require("stream/consumers")
 const Content = require("../model/content")
 const cloudinary = require("cloudinary").v2
 const fs = require("fs")
@@ -10,43 +11,131 @@ api_secret:process.env.CLOUDINARY_API_SECRET
 
 const uploadContent = async(req,res)=>{
 
-const {title,type,startTime,endTime} = req.body
 
-if(!req.file) return res.status(400).json("File required")
+  try{
+    
+    const {title,type,startTime,endTime} = req.body
 
-const result = await cloudinary.uploader.upload(req.file.path,{
-resource_type:type==="video"?"video":"image"
-})
+    if(!req.file) return res.status(400).json("File required")
 
-fs.unlinkSync(req.file.path)
+    const result = await cloudinary.uploader.upload(req.file.path,{
+    resource_type:type==="video"?"video":"image"
+    })
 
-const content = new Content({
-title,
-type,
-fileUrl:result.secure_url,
-startTime,
-endTime
-})
+    fs.unlinkSync(req.file.path)
 
-await content.save()
+    const content = new Content({
+    title,
+    type,
+    fileUrl:result.secure_url,
+    startTime,
+    endTime
+    })
 
-res.json(content)
+    await content.save();
+
+    res.status(201).json({
+      success:true,
+      content
+    });
+
+  }catch(error){
+    res.status(500).json({
+      success:false,
+      message:"Something went wrong! Please try again"
+    })
+  }
+
 
 }
 
 const getAllContent = async(req,res)=>{
+  try{
+    const data = await Content.find().sort({createdAt:-1})
 
-const data = await Content.find().sort({createdAt:-1})
+    if(data?.length>0){
+      res.status(200).json({
+        success:true,
+        data
+      })
+    }else{
+      res.status(400).json({
+        success:false,
+        message:"Empty List"
+      })
+    }
 
-res.json(data)
+  }catch(error){
+    res.status(500).json({
+      success:false,
+      message:"Something went wrong! Please try again"
+    })
+  }
 
 }
 
+// const deleteContent = async(req,res)=>{
+
+//   try{
+    
+//   await Content.findByIdAndDelete(req.params.id)
+
+//   res.status(200).json({
+//     success:true,
+//     message:"Successfully deleted"
+//   })
+
+//   }catch(error){
+//     res.status(500).json({
+//       success:false,
+//       message:"Something went wrong! Please try again"
+//     })
+//   }
+// }
+
+
 const deleteContent = async(req,res)=>{
 
-await Content.findByIdAndDelete(req.params.id)
+  try{
 
-res.json("Deleted")
+  const content = await Content.findById(req.params.id)
+
+  if(!content){
+    return res.status(404).json({
+      success:false,
+      message:"Content not found"
+    })
+  }
+
+  // get public id from url
+  const url = content.fileUrl
+  const parts = url.split("/")
+  const fileName = parts[parts.length - 1]
+  const publicId = fileName.split(".")[0]
+
+  // delete from cloudinary
+  await cloudinary.uploader.destroy(publicId,{
+    resource_type: content.type === "video" ? "video" : "image"
+  })
+
+  // delete from database
+  await Content.findByIdAndDelete(req.params.id)
+
+  res.status(200).json({
+    success:true,
+    message:"Successfully deleted"
+  })
+
+  }catch(error){
+
+  console.log(error)
+
+  res.status(500).json({
+    success:false,
+    message:"Something went wrong"
+  })
+
+  }
 
 }
 
@@ -54,55 +143,80 @@ const updateContent = async (req,res)=>{
 
 try{
 
-const {title,type,startTime,endTime} = req.body
+      const {title,type,startTime,endTime} = req.body
 
-let updateData = {
-title,
-type,
-startTime,
-endTime
-}
+      let updateData = {
+      title,
+      type,
+      startTime,
+      endTime
+      }
 
-console.log(req.file)
+      console.log(req.file)
 
-if(req.file){
+      if(req.file){
 
-const result = await cloudinary.uploader.upload(req.file.path,{
-resource_type:type==="video"?"video":"image"
-})
+      const result = await cloudinary.uploader.upload(req.file.path,{
+      resource_type:type==="video"?"video":"image"
+      })
 
-fs.unlinkSync(req.file.path)
+      fs.unlinkSync(req.file.path)
 
-updateData.fileUrl = result.secure_url
+      updateData.fileUrl = result.secure_url
 
-}
+      }
 
-const updated = await Content.findByIdAndUpdate(
-req.params.id,
-updateData,
-{new:true}
-)
+      const updated = await Content.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      {new:true}
+      )
 
-res.json(updated)
+      if(!updated){
+        return res.status(404).json({
+          success:false,
+          message:"Error update"
+        })
+      }
+
+      res.json(updated)
 
 }catch(error){
-console.log(error)
-res.status(500).json("Update failed")
+    console.log(error)
+    res.status(500).json("Update failed")
 
 }
 
 }
 
 const getPublicContent = async (req, res) => {
-  const now = new Date();
 
-  const data = await Content.find({
-    startTime: { $lte: now },
-    endTime: { $gte: now || new Date("9999-12-31") } 
-  }).sort({ createdAt: 1 });
+  try {
 
-  res.json(data);
-};
+    const now = new Date()
+
+    const data = await Content.find({
+      startTime: { $lte: now },
+      endTime: { $gte: now }
+    }).sort({ startTime: 1 })
+
+    res.status(200).json({
+      success: true,
+      data
+    })
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong! Please try again"
+    })
+
+  }
+
+}
 
 module.exports = {
 uploadContent,

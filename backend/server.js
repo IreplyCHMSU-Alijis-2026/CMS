@@ -10,8 +10,6 @@ const app = express()
 
 
 
-
-
 app.use(express.json())
 app.use(cookieParser())
 
@@ -20,6 +18,6 @@ app.use(AdminRouter);
 app.use(contentRouter);
 
 connectDatabase()
-app.listen(process.env.PORT,()=>{
+app.listen(process.env.PORT,'0.0.0.0',()=>{
     console.log(`The server is running in Port ${process.env.PORT}`)
 })
