@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import LogoutModal from './LogoutModal'
 import './Navbar.css'
 import logoImg from '../pages/icons/ireply-logo-300x150.png'
+import authaxios from '../api/authaxios'
 
 function Navbar() {
     const [collapsed, setCollapsed] = useState(false)
@@ -21,9 +22,17 @@ function Navbar() {
         setIsLogoutModalOpen(true)
     }
 
-    const confirmLogout = () => {
-        setIsLogoutModalOpen(false)
-        navigate('/login')
+    const confirmLogout = async () => {
+
+    try {
+    await authaxios.post("/logout"); 
+    localStorage.removeItem("accessToken"); 
+    setIsLogoutModalOpen(false)
+    window.location.href = "/login"; 
+    
+  } catch (err) {
+    console.error("Logout failed:", err);
+  }   
     }
 
     return (

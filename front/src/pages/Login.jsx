@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import logo from './icons/ireply-logo-300x150.png'
 import Footer from '../components/Footer'
 import './Login.css'
+import authaxios from '../api/authaxios'
+
 
 function Login() {
   const navigate = useNavigate()
@@ -11,12 +13,13 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
+
   const handleChange = (e) => {
     setError('')
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
@@ -25,13 +28,22 @@ function Login() {
       return
     }
 
-    setIsLoading(true)
-    // Simulate a login request (no backend yet)
-    setTimeout(() => {
-      setIsLoading(false)
-      // Placeholder: navigate to home on "success"
-      navigate('/')
-    }, 1500)
+
+    try{
+
+      const res = await authaxios.post("/login",{
+        username:formData.username,
+        password:formData.password
+      });
+
+      localStorage.setItem("accessToken",res.data.accessToken)
+      navigate("/")
+
+    }catch(error){
+      alert("Login failed")
+    }
+
+
   }
 
   return (
