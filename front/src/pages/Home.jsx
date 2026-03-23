@@ -3,6 +3,9 @@ import carousel1 from './icons/carousel/carousel1.png'
 import carousel2 from './icons/carousel/carousel2.png'
 import carousel3 from './icons/carousel/carousel3.png'
 import './Home.css'
+import axiosPrivate from '../api/axiosPrivate'
+import axios from 'axios'
+import Queue from '../components/Queue'
 
 const CAROUSEL_SLIDES = [
     { id: 1, src: carousel1, title: 'Morning Announcements', type: 'Image' },
@@ -10,29 +13,75 @@ const CAROUSEL_SLIDES = [
     { id: 3, src: carousel3, title: 'Weekly Highlights', type: 'Image' },
 ]
 
-const INITIAL_QUEUE = [
-    { id: 1, name: 'Morning Announcements', type: 'Image', schedule: '2026-03-06 07:00 AM' },
-    { id: 2, name: 'School Events', type: 'Image', schedule: '2026-03-06 09:00 AM' },
-    { id: 3, name: 'Campus Tour Video', type: 'Video', schedule: '2026-03-06 11:00 AM' },
-    { id: 4, name: 'Weekly Highlights', type: 'Image', schedule: '2026-03-06 01:00 PM' },
-    { id: 5, name: 'Promo Video', type: 'Video', schedule: '2026-03-06 03:00 PM' },
-]
+
+
+
+
 
 function Home() {
+
+    const [queue, setQueue] = useState([]);
+
+    const [nowPlaying, setNowPlaying] = useState([]);
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+const fetchNowPlaying = async () => {
+  try {
+    const res = await axios.get('http://localhost:3000/public/content'); 
+    setNowPlaying(res.data.data);
+  } catch (err) {
+    console.error("Failed to fetch now playing:", err);
+  }
+};
+
+
+useEffect(() => {
+  fetchNowPlaying(); 
+
+  const interval = setInterval(fetchNowPlaying, 30000); 
+  return () => clearInterval(interval); 
+}, []);
+
+useEffect(() => {
+    if (current >= nowPlaying.length) {
+        setCurrent(0);
+    }
+}, [nowPlaying]);
+
+const fetchContent = async () => {
+    try {
+        const res = await axiosPrivate.get('/content')
+        setQueue(res.data.data)
+    } catch (err) {
+        console.error(err)
+    }
+}
+useEffect(() => {
+    fetchContent()
+}, [])
+
     /* ---------- Carousel state ---------- */
     const [current, setCurrent] = useState(0)
     const intervalRef = useRef(null)
 
-    const startAutoPlay = () => {
-        intervalRef.current = setInterval(() => {
-            setCurrent(prev => (prev + 1) % CAROUSEL_SLIDES.length)
-        }, 4000)
-    }
+// auto-advance carousel
+useEffect(() => {
+    if (nowPlaying.length === 0) return;
 
-    useEffect(() => {
-        startAutoPlay()
-        return () => clearInterval(intervalRef.current)
-    }, [])
+    const slide = nowPlaying[current];
+
+    if (!slide) return;
+
+    if (slide.type === "video") return;
+
+    const timer = setTimeout(() => {
+        setCurrent((prev) => (prev + 1) % nowPlaying.length);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+}, [current, nowPlaying]);
 
     const goTo = (idx) => {
         clearInterval(intervalRef.current)
@@ -40,14 +89,14 @@ function Home() {
         startAutoPlay()
     }
 
-    const prev = () => goTo((current - 1 + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length)
-    const next = () => goTo((current + 1) % CAROUSEL_SLIDES.length)
+    const prev = () => goTo((current - 1 + nowPlaying.length) % nowPlaying.length)
+    const next = () => goTo((current + 1) % nowPlaying.length)
 
     /* ---------- Upload modal state ---------- */
     const [modalOpen, setModalOpen] = useState(false)
     const [dragOver, setDragOver] = useState(false)
     const [uploadName, setUploadName] = useState('')
-    const [uploadType, setUploadType] = useState('Image')
+    const [uploadType, setUploadType] = useState('image')
     const [uploadDate, setUploadDate] = useState('')
     const [expiryDate, setExpiryDate] = useState('')
     const [uploadFile, setUploadFile] = useState(null)
@@ -76,51 +125,110 @@ function Home() {
         if (file) setUploadFile(file)
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        // TODO: wire to backend
-        alert(`Queued: "${uploadName}" (${uploadType}) for ${uploadDate} to ${expiryDate || 'No Expiry'}`)
-        closeModal()
-    }
 
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isSubmitting) return; //  prevent double click
+
+    setIsSubmitting(true); // start loading
+
+    try {
+        const formData = new FormData();
+        formData.append('file', uploadFile);
+        formData.append('title', uploadName);
+        formData.append('type', uploadType.toLowerCase());
+        formData.append('startTime', uploadDate);
+        formData.append('endTime', expiryDate);
+
+        await axiosPrivate.post('/upload', formData);
+
+        alert('Uploaded successfully');
+        fetchContent();
+        fetchNowPlaying();
+        closeModal();
+
+    } catch (err) {
+        console.error(err);
+        alert('Upload failed');
+    } finally {
+        setIsSubmitting(false); //  unlock button
+    }
+};
     /* ---------- Edit modal state & Actions ---------- */
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [editItem, setEditItem] = useState({
-        id: null,
-        name: '',
-        type: 'Image',
-        schedule: '',
-        expiry: ''
-    })
+    _id: null,
+    title: '',
+    type: 'image',
+    startTime: '',
+    endTime: '',
+    file: null
+})
 
     const openEditModal = (item) => {
-        // Since INITIAL_QUEUE current schedule string '2026-03-06 07:00 AM' 
-        // doesn't fit neatly into datetime-local directly natively without parsing,
-        // we leave it mostly empty or use it exactly as provided for this static demo.
-        setEditItem({
-            id: item.id,
-            name: item.name,
-            type: item.type,
-            schedule: '', // Would need parsed date here for proper UX
-            expiry: ''
-        })
-        setEditModalOpen(true)
-    }
+    setEditItem({
+        _id: item._id,
+        title: item.title,
+        type: item.type,
+        startTime: item.startTime?.slice(0,16), 
+        endTime: item.endTime?.slice(0,16) || '',
+        file: null
+    })
+    setEditModalOpen(true)
+}
 
     const closeEditModal = () => setEditModalOpen(false)
 
-    const handleEditSubmit = (e) => {
-        e.preventDefault()
-        alert(`Edited Item [${editItem.id}]: "${editItem.name}" (${editItem.type}) for ${editItem.schedule} to ${editItem.expiry || 'No Expiry'}`)
-        closeEditModal()
-    }
 
-    const handleDelete = (item) => {
-        if (window.confirm(`Are you sure you want to delete "${item.name}"?`)) {
-            // TODO: wire to backend
-            alert(`Deleted "${item.name}"`)
+
+const handleEditSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+        const formData = new FormData();
+
+        formData.append('title', editItem.title);
+        formData.append('type', editItem.type);
+        formData.append('startTime', editItem.startTime);
+        formData.append('endTime', editItem.endTime);
+
+        if (editItem.file) {
+            formData.append('file', editItem.file);
         }
+
+        await axiosPrivate.put(`/content/${editItem._id}`, formData);
+
+        // update UI (no reload needed)
+        setQueue(prev =>
+            prev.map(item =>
+                item._id === editItem._id
+                    ? { ...item, ...editItem }
+                    : item
+            )
+        );
+
+        alert('Updated successfully');
+        closeEditModal();
+
+    } catch (err) {
+        console.error(err);
+        alert('Update failed');
     }
+};
+
+    const handleDelete = async (item) => {
+    if (!window.confirm(`Are you sure you want to delete "${item.title}"?`)) return;
+
+    try {
+        await axiosPrivate.delete(`/content/${item._id}`);
+        setQueue(prevQueue => prevQueue.filter(q => q._id !== item._id));
+        alert('Deleted successfully');
+    } catch (err) {
+        console.error(err);
+        alert('Delete failed');
+    }
+};
 
     return (
         <div className="cms-page" id="home-page">
@@ -135,19 +243,32 @@ function Home() {
                 <div className="carousel-wrapper">
                     {/* Slides */}
                     <div className="carousel-track">
-                        {CAROUSEL_SLIDES.map((slide, idx) => (
-                            <div
-                                key={slide.id}
-                                className={`carousel-slide ${idx === current ? 'active' : ''}`}
-                            >
-                                <img src={slide.src} alt={slide.title} className="carousel-img" />
-                                <div className="carousel-caption">
-                                    <span className="carousel-caption__type">{slide.type}</span>
-                                    <span className="carousel-caption__title">{slide.title}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+  {nowPlaying.map((slide, idx) => (
+    <div key={slide._id} className={`carousel-slide ${idx === current ? 'active' : ''}`}>
+      {slide.type === "image" ? (
+        <img src={slide.fileUrl} alt={slide.title} className="carousel-img" />
+      ) : (
+        <video
+    key={slide._id + current} // 🔥 FORCE refresh per slide
+    src={slide.fileUrl}
+    className="carousel-img"
+    autoPlay
+    muted
+    playsInline
+    controls={false}
+    onEnded={() => {
+        console.log("Video ended");
+        setCurrent((prev) => (prev + 1) % nowPlaying.length);
+    }}
+/>
+      )}
+      <div className="carousel-caption">
+        <span className="carousel-caption__type">{slide.type}</span>
+        <span className="carousel-caption__title">{slide.title}</span>
+      </div>
+    </div>
+  ))}
+</div>
 
                     {/* Arrows */}
                     <button className="carousel-arrow carousel-arrow--prev" onClick={prev} aria-label="Previous">
@@ -195,31 +316,18 @@ function Home() {
                             </tr>
                         </thead>
                         <tbody>
-                            {INITIAL_QUEUE.map((item) => (
-                                <tr key={item.id}>
-                                    <td className="queue-table__num">{item.id}</td>
-                                    <td className="queue-table__name">{item.name}</td>
-                                    <td>
-                                        <span className={`badge badge--${item.type.toLowerCase()}`}>
-                                            {item.type === 'Video'
-                                                ? <svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="currentColor"><path d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z" /></svg>
-                                                : <svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="currentColor"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-800v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm40-80h480L570-480 450-320l-90-120-120 160Z" /></svg>
-                                            }
-                                            {item.type}
-                                        </span>
-                                    </td>
-                                    <td className="queue-table__schedule">{item.schedule}</td>
-                                    <td>
-                                        <button className="queue-action queue-action--edit" title="Edit" onClick={() => openEditModal(item)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" /></svg>
-                                        </button>
-                                        <button className="queue-action queue-action--delete" title="Delete" onClick={() => handleDelete(item)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" /></svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
+  {queue.map((item, index) => (
+
+    <Queue
+      key={item._id}
+      item={item}
+      index={index}
+      openEditModal={openEditModal}
+      handleDelete={handleDelete}
+    />
+    
+  ))}
+</tbody>
                     </table>
                 </div>
             </section>
@@ -293,8 +401,8 @@ function Home() {
                                     value={uploadType}
                                     onChange={e => setUploadType(e.target.value)}
                                 >
-                                    <option value="Image">Image</option>
-                                    <option value="Video">Video</option>
+                                    <option value="image">Image</option>
+                                    <option value="video">Video</option>
                                 </select>
                             </div>
 
@@ -327,8 +435,12 @@ function Home() {
                                 <button type="button" className="btn-modal btn-modal--cancel" onClick={closeModal}>
                                     Cancel
                                 </button>
-                                <button type="submit" className="btn-modal btn-modal--submit">
-                                    Add to Queue
+                                <button
+                                    type="submit"
+                                    className="btn-modal btn-modal--submit"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? "Uploading..." : "Add to Queue"}
                                 </button>
                             </div>
                         </form>
@@ -353,8 +465,8 @@ function Home() {
                                     className="form-input"
                                     type="text"
                                     placeholder="e.g. Monday Announcements"
-                                    value={editItem.name}
-                                    onChange={e => setEditItem({ ...editItem, name: e.target.value })}
+                                    value={editItem.title}
+                                    onChange={e => setEditItem({ ...editItem, title: e.target.value })}
                                     required
                                 />
                             </div>
@@ -367,8 +479,8 @@ function Home() {
                                     value={editItem.type}
                                     onChange={e => setEditItem({ ...editItem, type: e.target.value })}
                                 >
-                                    <option value="Image">Image</option>
-                                    <option value="Video">Video</option>
+                                    <option value="image">Image</option>
+                                    <option value="video">Video</option>
                                 </select>
                             </div>
 
@@ -379,8 +491,8 @@ function Home() {
                                         id="edit-schedule"
                                         className="form-input"
                                         type="datetime-local"
-                                        value={editItem.schedule}
-                                        onChange={e => setEditItem({ ...editItem, schedule: e.target.value })}
+                                        value={editItem.startTime}
+                                        onChange={e => setEditItem({ ...editItem, startTime: e.target.value })}
                                         required
                                     />
                                 </div>
@@ -391,8 +503,8 @@ function Home() {
                                         id="edit-expiry"
                                         className="form-input"
                                         type="datetime-local"
-                                        value={editItem.expiry}
-                                        onChange={e => setEditItem({ ...editItem, expiry: e.target.value })}
+                                        value={editItem.endTime}
+                                        onChange={e => setEditItem({ ...editItem, endTime: e.target.value })}
                                     />
                                 </div>
                             </div>

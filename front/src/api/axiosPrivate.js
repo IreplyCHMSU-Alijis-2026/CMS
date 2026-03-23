@@ -1,5 +1,5 @@
 import axios from "axios";
-import authAxios from "./authAxios";
+import authAxios from "./authaxios";
 
 const axiosPrivate = axios.create({
   baseURL: "http://localhost:3000",
@@ -24,7 +24,7 @@ axiosPrivate.interceptors.response.use(
 
     const prevRequest = err.config;
 
-    if (err.response.status === 403 && !prevRequest._retry) {
+   if ((err.response?.status === 401 || err.response?.status === 403) && !prevRequest._retry) {
 
       prevRequest._retry = true;
 

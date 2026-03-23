@@ -82,9 +82,11 @@ if(!match) return res.status(400).json({success:false,message:"Wrong password"})
 const accessToken = generateAccessToken(admin)
 const refreshToken = generateRefreshToken(admin)
 
-res.cookie("refreshToken",refreshToken,{
-httpOnly:true
-})
+res.cookie("refreshToken", refreshToken, {
+  httpOnly: true,
+  sameSite: "lax",   // important
+  secure: false      // true if HTTPS
+});
 
 res.status(200).json({
     success:true,
@@ -115,13 +117,17 @@ try{
 
 const decoded = jwt.verify(token,process.env.JWT_REFRESH_SECRET)
 
-const accessToken = generateAccessToken(decoded)
+const accessToken = jwt.sign(
+  { id: decoded.id },
+  process.env.JWT_ACCESS_SECRET,
+  { expiresIn: "15m" }
+);
 
 res.json({accessToken})
 
 }catch{
 
-res.status(401).json("Invalid refresh token")
+res.status(403).json("Invalid refresh token")
 
 }
 }

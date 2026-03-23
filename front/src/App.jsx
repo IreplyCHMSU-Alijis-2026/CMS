@@ -6,13 +6,14 @@ import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 import ProtectedRoute from './components/ProtectedRoutes'
 import './App.css'
+import Player from './Player'
 
 function App() {
   return (
     <Routes>
 
-
       <Route path="/login" element={<Login />} />
+      <Route path='/player'element={<Player/>} />
 
       <Route
         element={

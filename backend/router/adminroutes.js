@@ -3,13 +3,10 @@ const { login, refreshToken,register } = require("../controller/loginRegisterCon
 const cors = require("cors");
 
 
-const corsWithCookies = cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-});
-router.post("/register",corsWithCookies,register)
-router.post("/login", corsWithCookies, login);
-router.get("/refresh", corsWithCookies, refreshToken);
+
+router.post("/register",register)
+router.post("/login", login);
+router.get("/refresh", refreshToken);
 
 router.post("/logout", (req, res) => {
   
