@@ -8,34 +8,56 @@ export default function Player() {
 
 const fetchContent = async () => {
   try {
-    const res = await axios.get("http://192.168.0.135:3000/public/content");
-    setContent(res.data.data);
+    const res = await axios.get("http://192.168.68.117:3000/public/content");
+
+    const newData = res.data.data;
+
+    setContent((prev) => {
+    
+      const isSame = prev.length === newData.length &&
+        prev.every((item, i) => item._id === newData[i]?._id);
+
+      if (isSame) return prev; 
+
+  
+      const currentItem = prev[index];
+      const newIndex = newData.findIndex(i => i._id === currentItem?._id);
+
+      if (newIndex !== -1) {
+        setIndex(newIndex); 
+      } else {
+        setIndex(0); 
+      }
+
+      return newData;
+    });
+
   } catch (err) {
     console.error("Failed to fetch content:", err.message);
   }
 };
 
-  // initial fetch + refresh every 5 minutes
+  
   useEffect(() => {
     fetchContent();
 
-    const interval = setInterval(fetchContent, 1000 * 60 * 5);
+    const interval = setInterval(fetchContent, 10000); 
 
     return () => clearInterval(interval);
   }, []);
 
-  // image timer
+
   useEffect(() => {
     if (content.length === 0) return;
 
     const item = content[index];
 
-    // videos handle their own ending
+
     if (item.type === "video") return;
 
     const timer = setTimeout(() => {
       setIndex((prev) => (prev + 1) % content.length);
-    }, 10000); // image display 30 sec
+    }, 10000); 
 
     return () => clearTimeout(timer);
   }, [index, content]);

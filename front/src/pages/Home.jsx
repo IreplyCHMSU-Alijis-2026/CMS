@@ -7,11 +7,11 @@ import axiosPrivate from '../api/axiosPrivate'
 import axios from 'axios'
 import Queue from '../components/Queue'
 
-const CAROUSEL_SLIDES = [
-    { id: 1, src: carousel1, title: 'Morning Announcements', type: 'Image' },
-    { id: 2, src: carousel2, title: 'School Events', type: 'Image' },
-    { id: 3, src: carousel3, title: 'Weekly Highlights', type: 'Image' },
-]
+// const CAROUSEL_SLIDES = [
+//     { id: 1, src: carousel1, title: 'Morning Announcements', type: 'Image' },
+//     { id: 2, src: carousel2, title: 'School Events', type: 'Image' },
+//     { id: 3, src: carousel3, title: 'Weekly Highlights', type: 'Image' },
+// ]
 
 
 
@@ -208,6 +208,9 @@ const handleEditSubmit = async (e) => {
             )
         );
 
+        fetchContent();
+        fetchNowPlaying();
+
         alert('Updated successfully');
         closeEditModal();
 
@@ -224,6 +227,8 @@ const handleEditSubmit = async (e) => {
         await axiosPrivate.delete(`/content/${item._id}`);
         setQueue(prevQueue => prevQueue.filter(q => q._id !== item._id));
         alert('Deleted successfully');
+        fetchContent();
+        fetchNowPlaying();
     } catch (err) {
         console.error(err);
         alert('Delete failed');
@@ -279,7 +284,7 @@ const handleEditSubmit = async (e) => {
                     </button>
 
                     {/* Dots */}
-                    <div className="carousel-dots">
+                    {/* <div className="carousel-dots">
                         {CAROUSEL_SLIDES.map((_, idx) => (
                             <button
                                 key={idx}
@@ -288,7 +293,7 @@ const handleEditSubmit = async (e) => {
                                 aria-label={`Slide ${idx + 1}`}
                             />
                         ))}
-                    </div>
+                    </div> */}
                 </div>
             </section>
 
