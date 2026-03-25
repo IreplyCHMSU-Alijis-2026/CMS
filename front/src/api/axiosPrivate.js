@@ -2,7 +2,7 @@ import axios from "axios";
 import authAxios from "./authaxios";
 
 const axiosPrivate = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://192.168.68.117:3000",
   withCredentials: true
 });
 

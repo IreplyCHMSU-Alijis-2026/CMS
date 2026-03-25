@@ -41,20 +41,20 @@ const {
 
 
 
-const corsWithCookies = cors({
-  origin: "http://localhost:5173", 
-  credentials: true,
-});
+// const corsWithCookies = cors({
+//   origin: "http://localhost:5173", 
+//   credentials: true,
+// });
 
 
 const corsPublic = cors(); 
 
 const upload = multer({ dest: "uploads/" });
 
-router.post("/upload", corsWithCookies, auth, upload.single("file"), uploadContent);
-router.get("/content", corsWithCookies, auth, getAllContent);
-router.delete("/content/:id", corsWithCookies, auth, deleteContent);
-router.put("/content/:id",corsWithCookies, auth, upload.single("file"), updateContent)
+router.post("/upload", auth, upload.single("file"), uploadContent);
+router.get("/content", auth, getAllContent);
+router.delete("/content/:id", auth, deleteContent);
+router.put("/content/:id", auth, upload.single("file"), updateContent)
 
 
 
