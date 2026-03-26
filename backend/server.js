@@ -17,7 +17,7 @@ app.use(cookieParser())
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "http://192.168.68.117:5173"
+    process.env.VITE_API_URLBACK
   ],
   credentials: true
 }));

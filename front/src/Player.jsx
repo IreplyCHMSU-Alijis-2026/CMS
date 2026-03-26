@@ -8,7 +8,7 @@ export default function Player() {
 
 const fetchContent = async () => {
   try {
-    const res = await axios.get("http://192.168.68.117:3000/public/content");
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`);
 
     const newData = res.data.data;
 

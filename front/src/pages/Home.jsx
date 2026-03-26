@@ -29,7 +29,7 @@ function Home() {
 
 const fetchNowPlaying = async () => {
   try {
-    const res = await axios.get('http://192.168.68.117:3000/public/content'); 
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`); 
     setNowPlaying(res.data.data);
   } catch (err) {
     console.error("Failed to fetch now playing:", err);
