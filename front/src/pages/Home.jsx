@@ -26,13 +26,37 @@ function Home() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+  
+
+// const fetchNowPlaying = async () => {
+//   try {
+//     const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`); 
+ 
+//     setNowPlaying(res.data.data);
+//   } catch (err) {
+//     console.error("Failed to fetch now playing:", err);
+//   }
+// };
+
+const DEFAULT_VIDEO = {
+    _id: "default-video",
+    title: "Promo",
+    type: "video",
+    fileUrl: "https://res.cloudinary.com/du4otsazk/video/upload/v1774593695/l9joevy9vqglkct4rijo.mp4",
+    startTime: new Date().toISOString(),
+    endTime: new Date(new Date().getTime() + 5 * 60 * 1000).toISOString(),
+};
 
 const fetchNowPlaying = async () => {
   try {
-    const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`); 
-    setNowPlaying(res.data.data);
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`);
+    const data = res.data.data;
+
+    setNowPlaying(data.length > 0 ? data : [DEFAULT_VIDEO]);
   } catch (err) {
     console.error("Failed to fetch now playing:", err);
+   
+    setNowPlaying([DEFAULT_VIDEO]);
   }
 };
 
@@ -254,7 +278,7 @@ const handleEditSubmit = async (e) => {
         <img src={slide.fileUrl} alt={slide.title} className="carousel-img" />
       ) : (
         <video
-    key={slide._id + current} // 🔥 FORCE refresh per slide
+    key={slide._id + current} 
     src={slide.fileUrl}
     className="carousel-img"
     autoPlay
@@ -322,7 +346,6 @@ const handleEditSubmit = async (e) => {
                         </thead>
                         <tbody>
   {queue.map((item, index) => (
-
     <Queue
       key={item._id}
       item={item}

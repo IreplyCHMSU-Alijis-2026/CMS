@@ -5,37 +5,79 @@ export default function Player() {
   const [content, setContent] = useState([]);
   const [index, setIndex] = useState(0);
 
+const DEFAULT_VIDEO = {
+  _id: "default-video",
+  title: "Promo",
+  type: "video",
+  fileUrl: "https://res.cloudinary.com/du4otsazk/video/upload/v1774593695/l9joevy9vqglkct4rijo.mp4",
+  startTime: new Date().toISOString(),
+  endTime: new Date(new Date().getTime() + 5 * 60 * 1000).toISOString(),
+};
 
 const fetchContent = async () => {
   try {
     const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`);
-
     const newData = res.data.data;
 
-    setContent((prev) => {
-    
-      const isSame = prev.length === newData.length &&
-        prev.every((item, i) => item._id === newData[i]?._id);
-
-      if (isSame) return prev; 
-
   
+    const dataWithFallback = newData.length > 0 ? newData : [DEFAULT_VIDEO];
+
+    setContent((prev) => {
+      const isSame =
+        prev.length === dataWithFallback.length &&
+        prev.every((item, i) => item._id === dataWithFallback[i]?._id);
+
+      if (isSame) return prev;
+
       const currentItem = prev[index];
-      const newIndex = newData.findIndex(i => i._id === currentItem?._id);
+      const newIndex = dataWithFallback.findIndex(i => i._id === currentItem?._id);
 
       if (newIndex !== -1) {
-        setIndex(newIndex); 
+        setIndex(newIndex);
       } else {
-        setIndex(0); 
+        setIndex(0);
       }
 
-      return newData;
+      return dataWithFallback;
     });
-
   } catch (err) {
     console.error("Failed to fetch content:", err.message);
+    // On fetch error, show default video
+    setContent([DEFAULT_VIDEO]);
+    setIndex(0);
   }
 };
+
+// const fetchContent = async () => {
+//   try {
+//     const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`);
+
+//     const newData = res.data.data;
+
+//     setContent((prev) => {
+    
+//       const isSame = prev.length === newData.length &&
+//         prev.every((item, i) => item._id === newData[i]?._id);
+
+//       if (isSame) return prev; 
+
+  
+//       const currentItem = prev[index];
+//       const newIndex = newData.findIndex(i => i._id === currentItem?._id);
+
+//       if (newIndex !== -1) {
+//         setIndex(newIndex); 
+//       } else {
+//         setIndex(0); 
+//       }
+
+//       return newData;
+//     });
+
+//   } catch (err) {
+//     console.error("Failed to fetch content:", err.message);
+//   }
+// };
 
   
   useEffect(() => {
