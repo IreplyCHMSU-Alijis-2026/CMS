@@ -285,10 +285,23 @@ const handleEditSubmit = async (e) => {
     muted
     playsInline
     controls={false}
+
+    loop={nowPlaying.length === 1 && slide._id === "default-video"} 
+
     onEnded={() => {
+        //  if default lang → wag na mag next
+        if (nowPlaying.length === 1 && slide._id === "default-video") {
+            return;
+        }
+
         console.log("Video ended");
         setCurrent((prev) => (prev + 1) % nowPlaying.length);
     }}
+
+    // onEnded={() => {
+    //     console.log("Video ended");
+    //     setCurrent((prev) => (prev + 1) % nowPlaying.length);
+    // }}
 />
       )}
       <div className="carousel-caption">

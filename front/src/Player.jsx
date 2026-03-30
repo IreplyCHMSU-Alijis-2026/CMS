@@ -5,6 +5,11 @@ export default function Player() {
   const [content, setContent] = useState([]);
   const [index, setIndex] = useState(0);
 
+
+  const isOnlyDefault =
+  content.length === 1 &&
+  content[0]._id === "default-video";
+
 const DEFAULT_VIDEO = {
   _id: "default-video",
   title: "Promo",
@@ -159,7 +164,17 @@ const fetchContent = async () => {
             height: "100vh",
             objectFit: "cover",
           }}
-          onEnded={() => setIndex((prev) => (prev + 1) % content.length)}
+
+
+          loop={isOnlyDefault} 
+          onEnded={() => {
+              if (isOnlyDefault) return;
+
+              setIndex((prev) => (prev + 1) % content.length);
+            }}
+
+          // onEnded={() => setIndex((prev) => (prev + 1) % content.length)}
+          
           onError={() => console.log("Video failed:", item.fileUrl)}
         />
       )}
