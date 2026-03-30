@@ -26,86 +26,86 @@ function Home() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-  
-
-// const fetchNowPlaying = async () => {
-//   try {
-//     const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`); 
- 
-//     setNowPlaying(res.data.data);
-//   } catch (err) {
-//     console.error("Failed to fetch now playing:", err);
-//   }
-// };
-
-const DEFAULT_VIDEO = {
-    _id: "default-video",
-    title: "Promo",
-    type: "video",
-    fileUrl: "https://res.cloudinary.com/du4otsazk/video/upload/v1774593695/l9joevy9vqglkct4rijo.mp4",
-    startTime: new Date().toISOString(),
-    endTime: new Date(new Date().getTime() + 5 * 60 * 1000).toISOString(),
-};
-
-const fetchNowPlaying = async () => {
-  try {
-    const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`);
-    const data = res.data.data;
-
-    setNowPlaying(data.length > 0 ? data : [DEFAULT_VIDEO]);
-  } catch (err) {
-    console.error("Failed to fetch now playing:", err);
-   
-    setNowPlaying([DEFAULT_VIDEO]);
-  }
-};
 
 
-useEffect(() => {
-  fetchNowPlaying(); 
+    // const fetchNowPlaying = async () => {
+    //   try {
+    //     const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`); 
 
-  const interval = setInterval(fetchNowPlaying, 30000); 
-  return () => clearInterval(interval); 
-}, []);
+    //     setNowPlaying(res.data.data);
+    //   } catch (err) {
+    //     console.error("Failed to fetch now playing:", err);
+    //   }
+    // };
 
-useEffect(() => {
-    if (current >= nowPlaying.length) {
-        setCurrent(0);
+    const DEFAULT_VIDEO = {
+        _id: "default-video",
+        title: "Promo",
+        type: "video",
+        fileUrl: "https://res.cloudinary.com/du4otsazk/video/upload/v1774593695/l9joevy9vqglkct4rijo.mp4",
+        startTime: new Date().toISOString(),
+        endTime: new Date(new Date().getTime() + 5 * 60 * 1000).toISOString(),
+    };
+
+    const fetchNowPlaying = async () => {
+        try {
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`);
+            const data = res.data.data;
+            console.log(data);
+            setNowPlaying(data.length > 0 ? data : [DEFAULT_VIDEO]);
+        } catch (err) {
+            console.error("Failed to fetch now playing:", err);
+
+            setNowPlaying([DEFAULT_VIDEO]);
+        }   
+    };
+
+
+    useEffect(() => {
+        fetchNowPlaying();
+
+        const interval = setInterval(fetchNowPlaying, 30000);
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        if (current >= nowPlaying.length) {
+            setCurrent(0);
+        }
+    }, [nowPlaying]);
+
+    const fetchContent = async () => {
+        try {
+            const res = await axiosPrivate.get('/content')
+            setQueue(res.data.data)
+        } catch (err) {
+            console.error(err)
+        }
     }
-}, [nowPlaying]);
-
-const fetchContent = async () => {
-    try {
-        const res = await axiosPrivate.get('/content')
-        setQueue(res.data.data)
-    } catch (err) {
-        console.error(err)
-    }
-}
-useEffect(() => {
-    fetchContent()
-}, [])
+    useEffect(() => {
+        fetchContent()
+    }, [])
 
     /* ---------- Carousel state ---------- */
     const [current, setCurrent] = useState(0)
     const intervalRef = useRef(null)
 
-// auto-advance carousel
-useEffect(() => {
-    if (nowPlaying.length === 0) return;
+    // auto-advance carousel
+    useEffect(() => {
+        if (nowPlaying.length === 0) return;
 
-    const slide = nowPlaying[current];
+        const slide = nowPlaying[current];
 
-    if (!slide) return;
+        if (!slide) return;
 
-    if (slide.type === "video") return;
+        if (slide.type === "video") return;
 
-    const timer = setTimeout(() => {
-        setCurrent((prev) => (prev + 1) % nowPlaying.length);
-    }, 10000);
+        const timer = setTimeout(() => {
+            setCurrent((prev) => (prev + 1) % nowPlaying.length);
+        }, 10000);
 
-    return () => clearTimeout(timer);
-}, [current, nowPlaying]);
+        return () => clearTimeout(timer);
+    }, [current, nowPlaying]);
 
     const goTo = (idx) => {
         clearInterval(intervalRef.current)
@@ -151,113 +151,113 @@ useEffect(() => {
 
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    if (isSubmitting) return; //  prevent double click
+        if (isSubmitting) return; //  prevent double click
 
-    setIsSubmitting(true); // start loading
+        setIsSubmitting(true); // start loading
 
-    try {
-        const formData = new FormData();
-        formData.append('file', uploadFile);
-        formData.append('title', uploadName);
-        formData.append('type', uploadType.toLowerCase());
-        formData.append('startTime', uploadDate);
-        formData.append('endTime', expiryDate);
+        try {
+            const formData = new FormData();
+            formData.append('file', uploadFile);
+            formData.append('title', uploadName);
+            formData.append('type', uploadType.toLowerCase());
+            formData.append('startTime', uploadDate);
+            formData.append('endTime', expiryDate);
 
-        await axiosPrivate.post('/upload', formData);
+            await axiosPrivate.post('/upload', formData);
 
-        alert('Uploaded successfully');
-        fetchContent();
-        fetchNowPlaying();
-        closeModal();
+            alert('Uploaded successfully');
+            fetchContent();
+            fetchNowPlaying();
+            closeModal();
 
-    } catch (err) {
-        console.error(err);
-        alert('Upload failed');
-    } finally {
-        setIsSubmitting(false); //  unlock button
-    }
-};
+        } catch (err) {
+            console.error(err);
+            alert('Upload failed');
+        } finally {
+            setIsSubmitting(false); //  unlock button
+        }
+    };
     /* ---------- Edit modal state & Actions ---------- */
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [editItem, setEditItem] = useState({
-    _id: null,
-    title: '',
-    type: 'image',
-    startTime: '',
-    endTime: '',
-    file: null
-})
-
-    const openEditModal = (item) => {
-    setEditItem({
-        _id: item._id,
-        title: item.title,
-        type: item.type,
-        startTime: item.startTime?.slice(0,16), 
-        endTime: item.endTime?.slice(0,16) || '',
+        _id: null,
+        title: '',
+        type: 'image',
+        startTime: '',
+        endTime: '',
         file: null
     })
-    setEditModalOpen(true)
-}
+
+    const openEditModal = (item) => {
+        setEditItem({
+            _id: item._id,
+            title: item.title,
+            type: item.type,
+            startTime: item.startTime?.slice(0, 16),
+            endTime: item.endTime?.slice(0, 16) || '',
+            file: null
+        })
+        setEditModalOpen(true)
+    }
 
     const closeEditModal = () => setEditModalOpen(false)
 
 
 
-const handleEditSubmit = async (e) => {
-    e.preventDefault();
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
 
-    try {
-        const formData = new FormData();
+        try {
+            const formData = new FormData();
 
-        formData.append('title', editItem.title);
-        formData.append('type', editItem.type);
-        formData.append('startTime', editItem.startTime);
-        formData.append('endTime', editItem.endTime);
+            formData.append('title', editItem.title);
+            formData.append('type', editItem.type);
+            formData.append('startTime', editItem.startTime);
+            formData.append('endTime', editItem.endTime);
 
-        if (editItem.file) {
-            formData.append('file', editItem.file);
+            if (editItem.file) {
+                formData.append('file', editItem.file);
+            }
+
+            await axiosPrivate.put(`/content/${editItem._id}`, formData);
+
+            // update UI (no reload needed)
+            setQueue(prev =>
+                prev.map(item =>
+                    item._id === editItem._id
+                        ? { ...item, ...editItem }
+                        : item
+                )
+            );
+
+            fetchContent();
+            fetchNowPlaying();
+
+            alert('Updated successfully');
+            closeEditModal();
+
+        } catch (err) {
+            console.error(err);
+            alert('Update failed');
         }
-
-        await axiosPrivate.put(`/content/${editItem._id}`, formData);
-
-        // update UI (no reload needed)
-        setQueue(prev =>
-            prev.map(item =>
-                item._id === editItem._id
-                    ? { ...item, ...editItem }
-                    : item
-            )
-        );
-
-        fetchContent();
-        fetchNowPlaying();
-
-        alert('Updated successfully');
-        closeEditModal();
-
-    } catch (err) {
-        console.error(err);
-        alert('Update failed');
-    }
-};
+    };
 
     const handleDelete = async (item) => {
-    if (!window.confirm(`Are you sure you want to delete "${item.title}"?`)) return;
+        if (!window.confirm(`Are you sure you want to delete "${item.title}"?`)) return;
 
-    try {
-        await axiosPrivate.delete(`/content/${item._id}`);
-        setQueue(prevQueue => prevQueue.filter(q => q._id !== item._id));
-        alert('Deleted successfully');
-        fetchContent();
-        fetchNowPlaying();
-    } catch (err) {
-        console.error(err);
-        alert('Delete failed');
-    }
-};
+        try {
+            await axiosPrivate.delete(`/content/${item._id}`);
+            setQueue(prevQueue => prevQueue.filter(q => q._id !== item._id));
+            alert('Deleted successfully');
+            fetchContent();
+            fetchNowPlaying();
+        } catch (err) {
+            console.error(err);
+            alert('Delete failed');
+        }
+    };
 
     return (
         <div className="cms-page" id="home-page">
@@ -272,32 +272,32 @@ const handleEditSubmit = async (e) => {
                 <div className="carousel-wrapper">
                     {/* Slides */}
                     <div className="carousel-track">
-  {nowPlaying.map((slide, idx) => (
-    <div key={slide._id} className={`carousel-slide ${idx === current ? 'active' : ''}`}>
-      {slide.type === "image" ? (
-        <img src={slide.fileUrl} alt={slide.title} className="carousel-img" />
-      ) : (
-        <video
-    key={slide._id + current} 
-    src={slide.fileUrl}
-    className="carousel-img"
-    autoPlay
-    muted
-    playsInline
-    controls={false}
-    onEnded={() => {
-        console.log("Video ended");
-        setCurrent((prev) => (prev + 1) % nowPlaying.length);
-    }}
-/>
-      )}
-      <div className="carousel-caption">
-        <span className="carousel-caption__type">{slide.type}</span>
-        <span className="carousel-caption__title">{slide.title}</span>
-      </div>
-    </div>
-  ))}
-</div>
+                        {nowPlaying.map((slide, idx) => (
+                            <div key={slide._id} className={`carousel-slide ${idx === current ? 'active' : ''}`}>
+                                {slide.type === "image" ? (
+                                    <img src={slide.fileUrl} alt={slide.title} className="carousel-img" />
+                                ) : (
+                                    <video
+                                        key={slide._id + current}
+                                        src={slide.fileUrl}
+                                        className="carousel-img"
+                                        autoPlay
+                                        muted
+                                        playsInline
+                                        controls={false}
+                                        onEnded={() => {
+                                            console.log("Video ended");
+                                            setCurrent((prev) => (prev + 1) % nowPlaying.length);
+                                        }}
+                                    />
+                                )}
+                                <div className="carousel-caption">
+                                    <span className="carousel-caption__type">{slide.type}</span>
+                                    <span className="carousel-caption__title">{slide.title}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
 
                     {/* Arrows */}
                     <button className="carousel-arrow carousel-arrow--prev" onClick={prev} aria-label="Previous">
@@ -345,17 +345,17 @@ const handleEditSubmit = async (e) => {
                             </tr>
                         </thead>
                         <tbody>
-  {queue.map((item, index) => (
-    <Queue
-      key={item._id}
-      item={item}
-      index={index}
-      openEditModal={openEditModal}
-      handleDelete={handleDelete}
-    />
-    
-  ))}
-</tbody>
+                            {queue.map((item, index) => (
+                                <Queue
+                                    key={item._id}
+                                    item={item}
+                                    index={index}
+                                    openEditModal={openEditModal}
+                                    handleDelete={handleDelete}
+                                />
+
+                            ))}
+                        </tbody>
                     </table>
                 </div>
             </section>

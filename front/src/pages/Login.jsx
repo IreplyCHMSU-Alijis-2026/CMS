@@ -29,17 +29,17 @@ function Login() {
     }
 
 
-    try{
+    try {
 
-      const res = await authaxios.post("/login",{
-        username:formData.username,
-        password:formData.password
+      const res = await authaxios.post("/login", {
+        username: formData.username,
+        password: formData.password
       });
 
-      localStorage.setItem("accessToken",res.data.accessToken)
+      localStorage.setItem("accessToken", res.data.accessToken)
       navigate("/")
 
-    }catch(error){
+    } catch (error) {
       alert("Login failed")
     }
 
