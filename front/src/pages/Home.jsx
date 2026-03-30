@@ -26,6 +26,42 @@ function Home() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+<<<<<<< HEAD
+=======
+    const isSingle = nowPlaying.length === 1;
+
+// const fetchNowPlaying = async () => {
+//   try {
+//     const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`); 
+ 
+//     setNowPlaying(res.data.data);
+//   } catch (err) {
+//     console.error("Failed to fetch now playing:", err);
+//   }
+// };
+
+const DEFAULT_VIDEO = {
+    _id: "default-video",
+    title: "Promo",
+    type: "video",
+    fileUrl: "https://res.cloudinary.com/du4otsazk/video/upload/v1774593695/l9joevy9vqglkct4rijo.mp4",
+    startTime: new Date().toISOString(),
+    endTime: new Date(new Date().getTime() + 5 * 60 * 1000).toISOString(),
+};
+
+const fetchNowPlaying = async () => {
+  try {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/public/content`);
+    const data = res.data.data;
+
+    setNowPlaying(data.length > 0 ? data : [DEFAULT_VIDEO]);
+  } catch (err) {
+    console.error("Failed to fetch now playing:", err);
+   
+    setNowPlaying([DEFAULT_VIDEO]);
+  }
+};
+>>>>>>> db24de2fb91f9f2a6548d7e1ef3f88ebf0148a8b
 
 
     // const fetchNowPlaying = async () => {
@@ -272,6 +308,7 @@ function Home() {
                 <div className="carousel-wrapper">
                     {/* Slides */}
                     <div className="carousel-track">
+<<<<<<< HEAD
                         {nowPlaying.map((slide, idx) => (
                             <div key={slide._id} className={`carousel-slide ${idx === current ? 'active' : ''}`}>
                                 {slide.type === "image" ? (
@@ -298,6 +335,43 @@ function Home() {
                             </div>
                         ))}
                     </div>
+=======
+  {nowPlaying.map((slide, idx) => (
+    <div key={slide._id} className={`carousel-slide ${idx === current ? 'active' : ''}`}>
+      {slide.type === "image" ? (
+        <img src={slide.fileUrl} alt={slide.title} className="carousel-img" />
+      ) : (
+        <video
+    key={slide._id + current} 
+    src={slide.fileUrl}
+    className="carousel-img"
+    autoPlay
+    muted
+    playsInline
+    controls={false}
+
+    loop={isSingle} 
+
+    onEnded={() => {
+    if (isSingle) return; 
+
+    setCurrent((prev) => (prev + 1) % nowPlaying.length);
+    }}
+
+    // onEnded={() => {
+    //     console.log("Video ended");
+    //     setCurrent((prev) => (prev + 1) % nowPlaying.length);
+    // }}
+/>
+      )}
+      <div className="carousel-caption">
+        <span className="carousel-caption__type">{slide.type}</span>
+        <span className="carousel-caption__title">{slide.title}</span>
+      </div>
+    </div>
+  ))}
+</div>
+>>>>>>> db24de2fb91f9f2a6548d7e1ef3f88ebf0148a8b
 
                     {/* Arrows */}
                     <button className="carousel-arrow carousel-arrow--prev" onClick={prev} aria-label="Previous">
