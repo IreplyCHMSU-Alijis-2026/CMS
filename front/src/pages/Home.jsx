@@ -26,7 +26,7 @@ function Home() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-  
+    const isSingle = nowPlaying.length === 1;
 
 // const fetchNowPlaying = async () => {
 //   try {
@@ -286,16 +286,12 @@ const handleEditSubmit = async (e) => {
     playsInline
     controls={false}
 
-    loop={nowPlaying.length === 1 && slide._id === "default-video"} 
+    loop={isSingle} 
 
     onEnded={() => {
-        //  if default lang → wag na mag next
-        if (nowPlaying.length === 1 && slide._id === "default-video") {
-            return;
-        }
+    if (isSingle) return; 
 
-        console.log("Video ended");
-        setCurrent((prev) => (prev + 1) % nowPlaying.length);
+    setCurrent((prev) => (prev + 1) % nowPlaying.length);
     }}
 
     // onEnded={() => {

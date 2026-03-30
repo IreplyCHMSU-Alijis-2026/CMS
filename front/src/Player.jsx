@@ -6,9 +6,7 @@ export default function Player() {
   const [index, setIndex] = useState(0);
 
 
-  const isOnlyDefault =
-  content.length === 1 &&
-  content[0]._id === "default-video";
+  const isSingleContent = content.length === 1;
 
 const DEFAULT_VIDEO = {
   _id: "default-video",
@@ -153,7 +151,7 @@ const fetchContent = async () => {
         />
       ) : (
         <video
-          key={item._id}
+          key={item._id+index}
           src={item.fileUrl}
           autoPlay
           playsInline
@@ -166,12 +164,12 @@ const fetchContent = async () => {
           }}
 
 
-          loop={isOnlyDefault} 
+          loop={isSingleContent} 
           onEnded={() => {
-              if (isOnlyDefault) return;
+          if (isSingleContent) return; 
 
-              setIndex((prev) => (prev + 1) % content.length);
-            }}
+            setIndex((prev) => (prev + 1) % content.length);
+          }}
 
           // onEnded={() => setIndex((prev) => (prev + 1) % content.length)}
           
