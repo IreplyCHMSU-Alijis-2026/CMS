@@ -16,7 +16,7 @@ const students = [
   {
     id: 2,
     name: 'Dancharl Mondia',
-    role: 'UI/UX Designer',
+    role: 'Front-End Developer',
     linkedin: 'https://www.linkedin.com/in/dancharl-mondia-b41a49346',
     avatar: 'DM',
   },
@@ -30,22 +30,22 @@ const students = [
   {
     id: 4,
     name: 'Juvelyn Moreno',
-    role: 'Data Analyst',
+    role: 'Hardware Engineer',
     linkedin: 'http://www.linkedin.com/in/juvelyn-moreno-2804423ba/',
     avatar: 'JM',
   },
   {
     id: 5,
     name: 'Felix Kirk Amante',
-    role: 'Data Analyst',
+    role: 'Front-End Developer',
     linkedin: 'https://www.linkedin.com/in/felix-kirk-amante-283553347?utm_source=share_via&utm_content=profile&utm_medium=member_android',
     avatar: 'FK',
   },
   {
     id: 6,
     name: 'Kissa Sasaki',
-    role: 'QA Engineer',
-    linkedin: 'https://www.linkedin.com/in/sofiagarcia',
+    role: 'Hardware Engineer',
+    linkedin: 'http://www.linkedin.com/in/kissa-sasaki',
     avatar: 'KS',
   },
   {
@@ -58,21 +58,21 @@ const students = [
   {
     id: 8,
     name: 'Rhifel Buscado',
-    role: 'Back-End Developer',
+    role: 'Lead Systems Engineer',
     linkedin: 'http://www.linkedin.com/in/rhifel',
     avatar: 'RB',
   },
   {
     id: 9,
     name: 'Shielou Nicole Ferolino',
-    role: 'Data Analyst',
-    linkedin: 'https://www.linkedin.com/in/shielou-nicole-ferolino-b8a65328a?trk=contact-info',
+    role: 'Systems Engineer',
+    linkedin: 'http://www.linkedin.com/in/nicole-ferolino',
     avatar: 'JA',
   },
   {
     id: 10,
     name: 'Trizia Asis',
-    role: 'Data Analyst',
+    role: 'QA Engineer',
     linkedin: 'http://www.linkedin.com/in/trizia-asis-3204a63a1',
     avatar: 'TA',
   },
@@ -99,22 +99,13 @@ function Profile() {
           </h1>
           <div className="about-divider" />
           <p className="about-text">
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Veritatis
-            porro iure quaerat aliquam! Optio dolorum in eum provident, facilis
-            error repellendus excepturi enim dolor deleniti adipisci consectetur
-            doloremque, unde maiores odit sapiente. Quisquam obcaecati nulla
-            perspiciatis dolores harum vitae aspernatur alias quaerat, enim
-            voluptate cumque saepe accusantium consequuntur repudiandae
-            voluptatibus facilis rem. At eveniet sequi repudiandae cupiditate.
+            This internship at iReply Back Office Services Inc. has been a transformative milestone in our academic and professional journeys, uniquely structured across two distinct phases that significantly broadened our technical expertise. We would like to express our deepest gratitude to Sir Martin Gilongo, who supervised our foundational training in Voice over IP (VoIP), Unified Communications as a Service (UCaaS), and Network Operations Center (NOC) practices. His guidance allowed us to gain hands-on experience with device configurations, including the Yealink SIP-T46G IP Phone and the Netsapiens Portal. Through rigorous mock call simulations and softphone integrations, we developed critical troubleshooting skills for network connectivity, registration failures, and audio quality issues, laying a strong telecommunications foundation.
           </p>
           <p className="about-text">
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Veritatis
-            porro iure quaerat aliquam! Optio dolorum in eum provident, facilis
-            error repellendus excepturi enim dolor deleniti adipisci consectetur
-            doloremque, unde maiores odit sapiente. Quisquam obcaecati nulla
-            perspiciatis dolores harum vitae aspernatur alias quaerat, enim
-            voluptate cumque saepe accusantium consequuntur repudiandae
-            voluptatibus facilis rem. At eveniet sequi repudiandae cupiditate.
+            We are equally grateful to our software development mentor, Sir Joedaimar Gozon, whose mentorship was instrumental as we transitioned into the second phase of our training. His guidance shaped our professional developer mindset, emphasizing documentation literacy and independent problem-solving. Under his leadership, we successfully transitioned into practical application, learning to leverage enterprise-level technologies such as the MERN stack, Firebase, and AIoT. His emphasis on quality learning and proper version control via GitHub empowered us to confidently propose and develop the Remote Digital Signage & Public Address (PA) Controller. Building this centralized media orchestrator allowed us to bridge software and hardware, utilizing a React-based Content Management System (CMS), a Node.js server for state management, and a Raspberry Pi acting as an event-driven edge media player. We are also profoundly thankful to the wider iReply development team for their collaborative spirit and for providing industry-standard codebases as invaluable learning resources.
+          </p>
+          <p className="about-text">
+             Finally, this journey would not have been possible without the unwavering dedication and camaraderie within our own ranks. As a united team of seven Computer Engineering and three Information Technology students from Carlos Hilado Memorial State University (CHMSU), the synergy between our disciplines made navigating this dual-phase internship an incredibly rewarding experience. From mastering telecommunications infrastructure to brainstorming complex hardware-software integrations, our shared commitment, mutual support, and collective teamwork were the true driving forces behind our success.
           </p>
         </div>
         <div className="about-glow" />
