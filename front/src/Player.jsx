@@ -155,7 +155,7 @@ const fetchContent = async () => {
           src={item.fileUrl}
           autoPlay
           playsInline
-          muted
+          
           controls={false}
           style={{
             width: "100vw",
